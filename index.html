@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智光商工 資處一仁 - 自主學習 Go AI 成果競賽 班級參賽意願統計系統</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- SweetAlert2 for modern alerts -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            },
+            ai: {
+              50: '#faf5ff',
+              500: '#a855f7',
+              600: '#9333ea',
+              700: '#7e22ce',
+            },
+            book: {
+              50: '#f0fdf4',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+    .gradient-hero {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+    }
+    html {
+      scroll-behavior: smooth;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- 頂部提示條 -->
+  <div class="bg-gradient-to-r from-blue-700 via-indigo-600 to-purple-600 text-white text-xs sm:text-sm py-2 px-4 shadow">
+    <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
+      <div class="flex items-center space-x-2">
+        <span class="bg-white/20 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+          <i class="fa-solid fa-graduation-cap"></i> 智光商工 資處一仁
+        </span>
+        <span class="font-medium">新北市115學年度技術型高中自主學習 Go AI 成果競賽 全班意願調查</span>
+      </div>
+      <div class="flex items-center space-x-3 text-xs opacity-90">
+        <span><i class="fa-regular fa-clock mr-1"></i>校內調查截止：116/01/12</span>
+        <span><i class="fa-solid fa-users mr-1"></i>全班共 31 人 (1~31號)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 導覽列 -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md">
+          <i class="fa-solid fa-clipboard-user text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-black tracking-tight text-slate-900 leading-tight">資處一仁 參賽意願統計</h1>
+          <p class="text-xs text-slate-500 font-medium">全班 1 ~ 31 號 誰要參加・誰不參加・未回覆即時掌握</p>
+        </div>
+      </div>
+
+      <nav class="hidden md:flex items-center space-x-6 text-sm font-medium text-slate-600">
+        <a href="#stats" class="hover:text-blue-600 transition">全班概況</a>
+        <a href="#register-form" class="hover:text-blue-600 transition">意願登記</a>
+        <a href="#roster" class="hover:text-blue-600 transition">分類名冊</a>
+        <a href="#pending-list" class="hover:text-blue-600 transition">未填名單 (1~31號)</a>
+        <a href="#groups" class="hover:text-blue-600 transition">組別簡介</a>
+      </nav>
+
+      <div class="flex items-center space-x-2">
+        <a href="#register-form" class="inline-flex items-center space-x-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm transition shadow-sm">
+          <i class="fa-solid fa-pen-to-square"></i>
+          <span>填寫登記</span>
+        </a>
+        <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-slate-600 hover:text-slate-900 focus:outline-none">
+          <i class="fa-solid fa-bars text-lg"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- 手機端選單 -->
+    <div id="mobileMenu" class="hidden md:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-4 space-y-2 text-sm font-medium">
+      <a href="#stats" onclick="toggleMobileMenu()" class="block py-1.5 text-slate-700 hover:text-blue-600">全班概況</a>
+      <a href="#register-form" onclick="toggleMobileMenu()" class="block py-1.5 text-slate-700 hover:text-blue-600">意願登記</a>
+      <a href="#roster" onclick="toggleMobileMenu()" class="block py-1.5 text-slate-700 hover:text-blue-600">分類名冊</a>
+      <a href="#pending-list" onclick="toggleMobileMenu()" class="block py-1.5 text-slate-700 hover:text-blue-600">未填名單 (1~31號)</a>
+      <a href="#groups" onclick="toggleMobileMenu()" class="block py-1.5 text-slate-700 hover:text-blue-600">組別簡介</a>
+    </div>
+  </header>
+
+  <!-- 主視覺 Hero Section -->
+  <section class="gradient-hero text-white relative overflow-hidden py-10 lg:py-14">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        
+        <div class="lg:col-span-7 space-y-4 text-center lg:text-left">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs sm:text-sm font-medium">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            智光商工 資料處理科 一年仁班 (全班共 31 人)
+          </div>
+
+          <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+            自主學習 Go AI 成果競賽<br>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-purple-400">
+              全班參加意願調查統計
+            </span>
+          </h2>
+
+          <p class="text-slate-300 text-xs sm:text-sm max-w-xl mx-auto lg:mx-0 leading-relaxed">
+            老師交代統整全班名單！請 1 號到 31 號每位同學都要完成填寫（<strong>要參加</strong> 或 <strong>不參加</strong> 都要登記），方便回報給老師目前全班參賽與意願狀況。
+          </p>
+
+          <div class="pt-2 flex flex-wrap justify-center lg:justify-start gap-3">
+            <a href="#register-form" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold text-sm shadow-lg shadow-blue-500/25 transition">
+              <i class="fa-solid fa-pen-nib mr-1.5"></i> 我要登記意願 (1~31號)
+            </a>
+            <a href="#roster" class="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium text-sm border border-white/20 transition">
+              <i class="fa-solid fa-users-viewfinder mr-1.5"></i> 查看名冊 (<span id="btnRosterCount">0</span>人已登記)
+            </a>
+            <a href="#pending-list" class="px-4 py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-medium text-xs border border-amber-500/30 transition flex items-center">
+              <i class="fa-solid fa-hourglass-start mr-1.5"></i> 催收未填座號 (<span id="btnPendingCount">31</span>人)
+            </a>
+          </div>
+        </div>
+
+        <!-- 右側儀表板 -->
+        <div class="lg:col-span-5">
+          <div class="bg-slate-900/90 backdrop-blur-xl border border-white/15 rounded-3xl p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-700/80 pb-3">
+              <div>
+                <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">班級調查進度</span>
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                  <span id="displayClassName">資處一仁</span> (1~31號)
+                </h3>
+              </div>
+              <span class="text-xs px-2.5 py-1 bg-emerald-500/20 text-emerald-300 rounded-lg border border-emerald-500/30 font-mono">
+                全班共 31 人
+              </span>
+            </div>
+
+            <!-- 全班已填覆蓋率進度條 -->
+            <div>
+              <div class="flex justify-between text-xs mb-1.5">
+                <span class="text-slate-300">全班回覆進度</span>
+                <span class="text-white font-bold">
+                  已填 <span id="totalFilledText" class="text-blue-400">0</span> / 31 人
+                  (<span id="filledPercentageText">0%</span>)
+                </span>
+              </div>
+              <div class="w-full bg-slate-800 rounded-full h-3 p-0.5 overflow-hidden">
+                <div id="filledProgressBar" class="bg-gradient-to-r from-blue-500 via-emerald-500 to-indigo-500 h-full rounded-full transition-all duration-700" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <!-- 三大分類狀態卡片：要參加 / 不參加 / 未填寫 -->
+            <div class="grid grid-cols-3 gap-3">
+              <!-- 要參加 -->
+              <div class="bg-emerald-950/40 rounded-2xl p-3 border border-emerald-500/40 text-center">
+                <div class="text-[11px] text-emerald-400 font-bold flex items-center justify-center gap-1 mb-1">
+                  <i class="fa-solid fa-circle-check"></i> 要參加
+                </div>
+                <div class="text-2xl font-black text-white" id="statJoinCount">0</div>
+                <div class="text-[10px] text-emerald-300/80 mt-0.5" id="statJoinSubdetail">Book:0 | AI:0</div>
+              </div>
+
+              <!-- 不參加 -->
+              <div class="bg-rose-950/40 rounded-2xl p-3 border border-rose-500/40 text-center">
+                <div class="text-[11px] text-rose-400 font-bold flex items-center justify-center gap-1 mb-1">
+                  <i class="fa-solid fa-circle-xmark"></i> 不參加
+                </div>
+                <div class="text-2xl font-black text-white" id="statNotJoinCount">0</div>
+                <div class="text-[10px] text-rose-300/80 mt-0.5">專注其他規劃</div>
+              </div>
+
+              <!-- 未登記 -->
+              <div class="bg-amber-950/40 rounded-2xl p-3 border border-amber-500/40 text-center">
+                <div class="text-[11px] text-amber-400 font-bold flex items-center justify-center gap-1 mb-1">
+                  <i class="fa-solid fa-clock-rotate-left"></i> 未填寫
+                </div>
+                <div class="text-2xl font-black text-amber-300" id="statPendingCount">31</div>
+                <div class="text-[10px] text-amber-400/80 mt-0.5">尚待催收</div>
+              </div>
+            </div>
+
+            <div class="bg-blue-950/40 rounded-xl p-2.5 border border-blue-500/20 text-xs text-blue-200 flex items-center justify-between">
+              <span><i class="fa-solid fa-calendar-check text-amber-400 mr-1.5"></i>競賽截止日：116/01/12</span>
+              <a href="#pending-list" class="text-sky-300 hover:text-white font-medium">查看未填座號 &rarr;</a>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 統計圖卡區 -->
+  <section id="stats" class="py-6 bg-white border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        
+        <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200 flex items-center space-x-3.5">
+          <div class="w-11 h-11 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg shrink-0">
+            <i class="fa-solid fa-user-check"></i>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-emerald-800" id="cardJoinTotal">0</div>
+            <div class="text-xs text-emerald-600 font-semibold">確認要參加人數</div>
+          </div>
+        </div>
+
+        <div class="bg-purple-50 p-4 rounded-xl border border-purple-200 flex items-center space-x-3.5">
+          <div class="w-11 h-11 rounded-xl bg-purple-600 text-white flex items-center justify-center text-lg shrink-0">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-purple-800" id="cardAiGroup">0</div>
+            <div class="text-xs text-purple-600 font-semibold">行動 Go AI 組</div>
+          </div>
+        </div>
+
+        <div class="bg-blue-50 p-4 rounded-xl border border-blue-200 flex items-center space-x-3.5">
+          <div class="w-11 h-11 rounded-xl bg-blue-600 text-white flex items-center justify-center text-lg shrink-0">
+            <i class="fa-solid fa-book"></i>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-blue-800" id="cardBookGroup">0</div>
+            <div class="text-xs text-blue-600 font-semibold">技能 Book 組</div>
+          </div>
+        </div>
+
+        <div class="bg-rose-50 p-4 rounded-xl border border-rose-200 flex items-center space-x-3.5">
+          <div class="w-11 h-11 rounded-xl bg-rose-500 text-white flex items-center justify-center text-lg shrink-0">
+            <i class="fa-solid fa-user-xmark"></i>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-rose-800" id="cardNotJoinTotal">0</div>
+            <div class="text-xs text-rose-600 font-semibold">不參加人數</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 意願登記表單 (要參加 / 不參加) -->
+  <section id="register-form" class="py-10 bg-slate-100/60">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200">
+        
+        <div class="text-center max-w-lg mx-auto mb-6">
+          <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">
+            一仁 1 號至 31 號 同學專屬
+          </span>
+          <h2 class="text-2xl font-black text-slate-900 mt-2">
+            自主學習成果競賽 意願登記表
+          </h2>
+          <p class="text-slate-500 text-xs mt-1">
+            無論你是否要參加，請依真實意願填寫，方便班級幹部向老師回報完整名單。
+          </p>
+        </div>
+
+        <form id="intentForm" onsubmit="handleFormSubmit(event)" class="space-y-5">
+          
+          <!-- 基本資料：班級、座號 (1~31)、姓名 -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">班級 <span class="text-rose-500">*</span></label>
+              <input type="text" id="inputClass" required value="資處一仁" readonly class="w-full bg-slate-100 border border-slate-300 rounded-xl px-3.5 py-2.5 text-slate-800 text-sm font-semibold cursor-not-allowed">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">座號 (1~31 號) <span class="text-rose-500">*</span></label>
+              <input type="number" id="inputSeat" required min="1" max="31" placeholder="請填 1~31" class="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-slate-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none font-bold">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">姓名 <span class="text-rose-500">*</span></label>
+              <input type="text" id="inputName" required placeholder="請填寫本名" class="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-slate-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            </div>
+          </div>
+
+          <!-- 核心單選：是否參加？ -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-2">請問你是否參加本次「自主學習成果競賽」？ <span class="text-rose-500">*</span></label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              
+              <!-- 選項 A：要參加 -->
+              <label class="relative flex items-center p-4 rounded-2xl border-2 border-slate-200 bg-white hover:bg-emerald-50/40 cursor-pointer transition has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50">
+                <input type="radio" name="participationStatus" value="要參加" required class="text-emerald-600 focus:ring-emerald-500 h-5 w-5" onchange="toggleParticipationFields(true)">
+                <div class="ml-3">
+                  <span class="block text-sm font-bold text-emerald-800 flex items-center gap-1.5">
+                    <i class="fa-solid fa-circle-check text-emerald-600 text-base"></i> ✅ 我要參加競賽！
+                  </span>
+                  <span class="block text-xs text-slate-500 mt-0.5">參加技能 Book 組 或 行動 Go AI 組</span>
+                </div>
+              </label>
+
+              <!-- 選項 B：不參加 -->
+              <label class="relative flex items-center p-4 rounded-2xl border-2 border-slate-200 bg-white hover:bg-rose-50/40 cursor-pointer transition has-[:checked]:border-rose-500 has-[:checked]:bg-rose-50">
+                <input type="radio" name="participationStatus" value="不參加" required class="text-rose-600 focus:ring-rose-500 h-5 w-5" onchange="toggleParticipationFields(false)">
+                <div class="ml-3">
+                  <span class="block text-sm font-bold text-rose-800 flex items-center gap-1.5">
+                    <i class="fa-solid fa-circle-xmark text-rose-500 text-base"></i> ❌ 我暫不參加
+                  </span>
+                  <span class="block text-xs text-slate-500 mt-0.5">專注文書處理、軟體證照或課業規劃</span>
+                </div>
+              </label>
+
+            </div>
+          </div>
+
+          <!-- 【要參加】專屬欄位容器 (動態顯示) -->
+          <div id="sectionJoin" class="hidden p-5 rounded-2xl bg-emerald-50/60 border border-emerald-200 space-y-4">
+            <div class="text-xs font-bold text-emerald-800 uppercase tracking-wider flex items-center gap-1.5">
+              <i class="fa-solid fa-trophy text-amber-500"></i> 參賽詳細資訊填寫
+            </div>
+
+            <!-- 參賽組別選擇 -->
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1.5">欲報名組別 <span class="text-rose-500">*</span></label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label class="flex items-center p-3 rounded-xl border border-emerald-300 bg-white cursor-pointer hover:bg-emerald-50 text-xs font-semibold">
+                  <input type="radio" name="competitionGroup" value="行動 Go AI 組" class="text-purple-600 mr-2" onchange="toggleAiToolsSub(true)">
+                  <span>🤖 行動 Go AI 組 (最高獎金$5,000)</span>
+                </label>
+                <label class="flex items-center p-3 rounded-xl border border-emerald-300 bg-white cursor-pointer hover:bg-emerald-50 text-xs font-semibold">
+                  <input type="radio" name="competitionGroup" value="技能 Book 組" class="text-emerald-600 mr-2" onchange="toggleAiToolsSub(false)">
+                  <span>📘 技能 Book 組 (專業書籍閱讀心得)</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- 預計研究主題 -->
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">預計研究主題 / 閱讀書名 <span class="text-rose-500">*</span></label>
+              <input type="text" id="inputTopic" placeholder="例如：利用 ChatGPT 與 NotebookLM 建立 Python 自學筆記 / 《演算法圖鑑》閱讀心得" class="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2 text-slate-800 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+              <p class="text-[11px] text-slate-500 mt-1">💡 可先寫暫定方向，之後正式繳件前可再微調。</p>
+            </div>
+
+            <!-- AI 工具勾選 (若選行動組) -->
+            <div id="aiToolBlock" class="hidden bg-white p-3 rounded-xl border border-emerald-200">
+              <label class="block text-xs font-bold text-purple-700 mb-1.5">預計使用的生成式 AI 工具 (可複選)</label>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-slate-700">
+                <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" name="aiTool" value="ChatGPT"> ChatGPT</label>
+                <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" name="aiTool" value="Gemini"> Gemini</label>
+                <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" name="aiTool" value="NotebookLM"> NotebookLM</label>
+                <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" name="aiTool" value="Napkin"> Napkin AI</label>
+                <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" name="aiTool" value="Felo"> Felo 搜尋</label>
+                <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" name="aiTool" value="Claude"> Claude</label>
+                <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" name="aiTool" value="語音轉文字"> 語音轉文字</label>
+                <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" name="aiTool" value="其他"> 其他</label>
+              </div>
+            </div>
+
+            <!-- 指導老師與聯絡方式 -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">預計指導老師 (限1名)</label>
+                <input type="text" id="inputTeacher" placeholder="例如：科主任 / 班導師 / 某專業任課老師" class="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2 text-slate-800 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">聯絡方式 (LINE 或 電話)</label>
+                <input type="text" id="inputContact" placeholder="方便負責幹部提醒繳件" class="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2 text-slate-800 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+              </div>
+            </div>
+
+            <!-- 重要規矩確認 -->
+            <label class="flex items-start gap-2 text-xs text-emerald-900 bg-white p-2.5 rounded-xl border border-emerald-200 cursor-pointer">
+              <input type="checkbox" id="checkAgreement" class="mt-0.5 rounded text-emerald-600">
+              <span>我知曉規範：報告<strong>嚴禁出現校名、姓名</strong>，「心得省思」不得以 AI 生成，AI組限 2 頁無網址。</span>
+            </label>
+          </div>
+
+          <!-- 【不參加】專屬欄位容器 (動態顯示) -->
+          <div id="sectionNotJoin" class="hidden p-5 rounded-2xl bg-rose-50/70 border border-rose-200 space-y-3">
+            <div class="text-xs font-bold text-rose-800 uppercase tracking-wider flex items-center gap-1.5">
+              <i class="fa-solid fa-circle-info"></i> 不參加原因說明 (方便老師掌握)
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1.5">請選擇不參加的原因：</label>
+              <select id="selectNotJoinReason" class="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2 text-slate-800 text-xs focus:ring-2 focus:ring-rose-500 focus:outline-none">
+                <option value="專注準備電腦軟體應用乙/丙級證照檢定">專注準備電腦軟體應用乙/丙級證照檢定</option>
+                <option value="專注文書處理與商業概論段考課業">專注文書處理與商業概論段考課業</option>
+                <option value="目前尚無合適的自主學習主題">目前尚無合適的自主學習主題</option>
+                <option value="課餘時間已有其他個人生涯規劃">課餘時間已有其他個人生涯規劃</option>
+                <option value="其他原因">其他原因</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">補充說明 (選填)</label>
+              <input type="text" id="inputNotJoinNotes" placeholder="例如：若下學期有其他競賽再評估參加" class="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2 text-slate-800 text-xs focus:ring-2 focus:ring-rose-500 focus:outline-none">
+            </div>
+          </div>
+
+          <!-- 送出按鈕 -->
+          <div class="text-center pt-2">
+            <button type="submit" class="w-full sm:w-auto px-10 py-3 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold text-sm shadow-lg shadow-indigo-500/25 transition">
+              <i class="fa-solid fa-paper-plane mr-1.5"></i> 送出我的意願登記
+            </button>
+            <p class="text-slate-400 text-xs mt-2">
+              送出後隨時可在下方名冊查看；若填錯重新送出同座號即可更新。
+            </p>
+          </div>
+
+        </form>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 全班分類名冊 (真實同學資料，初始無假同學) -->
+  <section id="roster" class="py-10 bg-white border-t border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200">
+            全班真實回覆一覽
+          </span>
+          <h2 class="text-2xl font-black text-slate-900 mt-2">
+            資處一仁 參賽名冊 (<span id="rosterCountHeading">0</span> / 31 人已登記)
+          </h2>
+          <p class="text-slate-500 text-xs mt-0.5">
+            這裡只會顯示真實填寫的同學資料，即時分類要參加與不參加名單。
+          </p>
+        </div>
+
+        <!-- 匯出與管理按鈕 -->
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="exportToCSV()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1 shadow-sm">
+            <i class="fa-solid fa-file-excel"></i> 匯出 Excel (含參加狀態)
+          </button>
+          
+          <button onclick="copyRosterSummary()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1 shadow-sm">
+            <i class="fa-solid fa-copy"></i> 複製 LINE 班群名單
+          </button>
+
+          <button onclick="clearAllDataPrompt()" class="px-2.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium transition" title="清空全部重新統計">
+            <i class="fa-regular fa-trash-can"></i> 清空重置
+          </button>
+        </div>
+      </div>
+
+      <!-- 分類標籤頁 (Tabs) -->
+      <div class="bg-slate-100 p-1.5 rounded-2xl flex flex-wrap gap-1.5 mb-6 text-xs font-bold">
+        <button onclick="setFilter('ALL')" id="tabALL" class="px-4 py-2 rounded-xl bg-white text-slate-900 shadow-sm transition">
+          全部已填 (<span id="tabCountALL">0</span>)
+        </button>
+        <button onclick="setFilter('JOIN')" id="tabJOIN" class="px-4 py-2 rounded-xl text-emerald-700 hover:bg-white/60 transition">
+          <i class="fa-solid fa-circle-check mr-1"></i> 要參加 (<span id="tabCountJOIN">0</span>)
+        </button>
+        <button onclick="setFilter('NOT_JOIN')" id="tabNOT_JOIN" class="px-4 py-2 rounded-xl text-rose-700 hover:bg-white/60 transition">
+          <i class="fa-solid fa-circle-xmark mr-1"></i> 不參加 (<span id="tabCountNOT_JOIN">0</span>)
+        </button>
+        <button onclick="setFilter('BOOK')" id="tabBOOK" class="px-3 py-2 rounded-xl text-slate-600 hover:bg-white/60 transition">
+          📘 技能 Book 組 (<span id="tabCountBOOK">0</span>)
+        </button>
+        <button onclick="setFilter('AI')" id="tabAI" class="px-3 py-2 rounded-xl text-slate-600 hover:bg-white/60 transition">
+          🤖 行動 Go AI 組 (<span id="tabCountAI">0</span>)
+        </button>
+      </div>
+
+      <!-- 搜尋列 -->
+      <div class="mb-4">
+        <div class="relative max-w-sm">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+          <input type="text" oninput="handleSearch(this.value)" placeholder="搜尋座號、姓名、題目或原因..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+      </div>
+
+      <!-- 名冊表格 (電腦端) -->
+      <div class="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold">
+            <tr>
+              <th class="py-3 px-3 w-14 text-center">座號</th>
+              <th class="py-3 px-4 w-24">姓名</th>
+              <th class="py-3 px-4 w-28 text-center">意願狀態</th>
+              <th class="py-3 px-4 w-32">參賽組別</th>
+              <th class="py-3 px-4">作品主題 或 不參加原因</th>
+              <th class="py-3 px-4 w-24">指導老師</th>
+              <th class="py-3 px-4 w-20 text-center">登記時間</th>
+              <th class="py-3 px-4 w-16 text-center">操作</th>
+            </tr>
+          </thead>
+          <tbody id="rosterTableBody" class="divide-y divide-slate-100 text-slate-700">
+            <!-- JavaScript 動態產生 -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 名冊卡片 (手機端) -->
+      <div id="rosterCardContainer" class="md:hidden space-y-3">
+        <!-- JavaScript 動態產生 -->
+      </div>
+
+      <!-- 無資料提示 (初始乾淨狀態) -->
+      <div id="noDataAlert" class="text-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-300 p-8">
+        <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mx-auto text-xl mb-3">
+          <i class="fa-regular fa-clipboard"></i>
+        </div>
+        <p class="text-slate-700 text-sm font-bold">目前尚無同學填寫登記</p>
+        <p class="text-slate-500 text-xs mt-1">請同學在上方表單輸入 1 ~ 31 號座號登記意願，資料將即時顯示在此！</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 未填寫座號專區 (1~31 號追蹤器，催收神器) -->
+  <section id="pending-list" class="py-10 bg-amber-50/50 border-t border-amber-200/60">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="bg-white rounded-2xl p-6 border border-amber-200 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div>
+            <h3 class="text-base font-bold text-amber-900 flex items-center gap-2">
+              <i class="fa-solid fa-user-clock text-amber-600"></i>
+              資處一仁 尚未填寫座號追蹤 (1 ~ 31 號)
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">
+              全班共 31 人，目前還有 <strong id="pendingCountBadge" class="text-amber-600 font-bold">31</strong> 人尚未完成登記。點擊座號可快速帶入登記！
+            </p>
+          </div>
+          <button onclick="copyPendingSeats()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1.5 shadow-sm">
+            <i class="fa-solid fa-bullhorn"></i> 複製未填座號提醒 (貼 LINE 班群)
+          </button>
+        </div>
+
+        <div id="pendingSeatList" class="flex flex-wrap gap-2 pt-2">
+          <!-- 動態產生 1 ~ 31 號尚未填寫的座號標籤 -->
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 競賽組別重點比對 -->
+  <section id="groups" class="py-10 bg-white border-t border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-xl mx-auto mb-8">
+        <span class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+          競賽組別快速導覽
+        </span>
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900 mt-2">
+          技能 Book 組 vs 行動 Go AI 組
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        <!-- Book 組 -->
+        <div class="bg-emerald-50/50 p-5 rounded-2xl border border-emerald-200 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-emerald-900 flex items-center gap-1.5 text-sm">
+              <i class="fa-solid fa-book text-emerald-600"></i> 技能 Book 組
+            </h3>
+            <span class="text-[11px] bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded font-bold">最高 $500 禮券</span>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            閱讀專業技能相關書籍（如演算法、會計、資訊概論），撰寫心得報告。限 1 名學生與 1 名指導老師。專有名詞請括號註加英文詞彙。「我的觀點」嚴禁 AI 生成。
+          </p>
+          <button onclick="applyGroupToForm('技能 Book 組')" class="text-xs text-emerald-700 hover:text-emerald-900 font-bold">
+            帶入此組別到表單 &rarr;
+          </button>
+        </div>
+
+        <!-- AI 組 -->
+        <div class="bg-purple-50/50 p-5 rounded-2xl border border-purple-200 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-purple-900 flex items-center gap-1.5 text-sm">
+              <i class="fa-solid fa-robot text-purple-600"></i> 行動 Go AI 組
+            </h3>
+            <span class="text-[11px] bg-purple-200 text-purple-800 px-2 py-0.5 rounded font-bold">特優 $5,000 禮券</span>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            善用 ChatGPT、Gemini、NotebookLM、Napkin 等生成式 AI 工具輔助自學。初審書面限 2 頁無網址；擇優進入決賽進行 3 分鐘口頭報告（116/3/11 泰山高中）。
+          </p>
+          <button onclick="applyGroupToForm('行動 Go AI 組')" class="text-xs text-purple-700 hover:text-purple-900 font-bold">
+            帶入此組別到表單 &rarr;
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 頁尾 -->
+  <footer class="bg-slate-900 text-slate-400 py-6 border-t border-slate-800 mt-auto text-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <p class="text-slate-300 font-semibold">智光商工 資料處理科 一年仁班 自主學習競賽意願調查系統</p>
+        <p class="text-slate-500 mt-0.5">全班共 31 人 (1~31號) | 主辦：新北市政府教育局 | 承辦：新北市立泰山高級中學</p>
+      </div>
+      <div class="text-slate-500 text-center sm:text-right">
+        <p>真實記錄全班參賽狀態，隨時一鍵匯出 Excel (CSV) 繳交給導師</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // 專屬儲存鍵 (全班 31 人，全新乾淨版本)
+    const STORAGE_KEY = 'chih_kwang_ren_intent_v3_clean';
+    const TOTAL_CLASS_SIZE = 31; // 全班固定 1 ~ 31 號
+
+    let currentFilter = 'ALL';
+    let currentSearchTerm = '';
+
+    // 取得名單 (初始為乾淨的空陣列，沒有假同學！)
+    function getRoster() {
+      const data = localStorage.getItem(STORAGE_KEY);
+      if (!data) {
+        return [];
+      }
+      try {
+        return JSON.parse(data) || [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveRoster(roster) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(roster));
+      renderAll();
+    }
+
+    // 表單切換「要參加」與「不參加」欄位
+    function toggleParticipationFields(isJoin) {
+      const secJoin = document.getElementById('sectionJoin');
+      const secNotJoin = document.getElementById('sectionNotJoin');
+
+      if (isJoin) {
+        secJoin.classList.remove('hidden');
+        secNotJoin.classList.add('hidden');
+        document.getElementById('inputTopic').setAttribute('required', 'true');
+      } else {
+        secJoin.classList.add('hidden');
+        secNotJoin.classList.remove('hidden');
+        document.getElementById('inputTopic').removeAttribute('required');
+      }
+    }
+
+    function toggleAiToolsSub(isAi) {
+      const block = document.getElementById('aiToolBlock');
+      if (isAi) {
+        block.classList.remove('hidden');
+      } else {
+        block.classList.add('hidden');
+      }
+    }
+
+    // 渲染儀表板數據
+    function renderDashboard() {
+      const roster = getRoster();
+      const totalStudents = TOTAL_CLASS_SIZE;
+      const filledCount = roster.length;
+      
+      const joinList = roster.filter(r => r.status === '要參加');
+      const notJoinList = roster.filter(r => r.status === '不參加');
+
+      const bookCount = joinList.filter(r => r.group === '技能 Book 組').length;
+      const aiCount = joinList.filter(r => r.group === '行動 Go AI 組').length;
+      const pendingCount = Math.max(0, totalStudents - filledCount);
+
+      // 儀表板卡片
+      document.getElementById('totalFilledText').innerText = filledCount;
+      const pct = Math.min(100, Math.round((filledCount / totalStudents) * 100));
+      document.getElementById('filledPercentageText').innerText = pct + '%';
+      document.getElementById('filledProgressBar').style.width = pct + '%';
+
+      document.getElementById('statJoinCount').innerText = joinList.length;
+      document.getElementById('statJoinSubdetail').innerText = `Book:${bookCount} | AI:${aiCount}`;
+      document.getElementById('statNotJoinCount').innerText = notJoinList.length;
+      document.getElementById('statPendingCount').innerText = pendingCount;
+
+      // 四大統計小卡
+      document.getElementById('cardJoinTotal').innerText = joinList.length;
+      document.getElementById('cardAiGroup').innerText = aiCount;
+      document.getElementById('cardBookGroup').innerText = bookCount;
+      document.getElementById('cardNotJoinTotal').innerText = notJoinList.length;
+
+      // 標題計數
+      document.getElementById('rosterCountHeading').innerText = filledCount;
+      document.getElementById('btnRosterCount').innerText = filledCount;
+      document.getElementById('btnPendingCount').innerText = pendingCount;
+      document.getElementById('pendingCountBadge').innerText = pendingCount;
+
+      // Tab 計數
+      document.getElementById('tabCountALL').innerText = filledCount;
+      document.getElementById('tabCountJOIN').innerText = joinList.length;
+      document.getElementById('tabCountNOT_JOIN').innerText = notJoinList.length;
+      document.getElementById('tabCountBOOK').innerText = bookCount;
+      document.getElementById('tabCountAI').innerText = aiCount;
+
+      // 渲染 1~31 號未填寫座號
+      renderPendingSeats(roster, totalStudents);
+    }
+
+    // 渲染未填寫座號按鈕 (1 ~ 31 號)
+    function renderPendingSeats(roster, totalStudents) {
+      const container = document.getElementById('pendingSeatList');
+      container.innerHTML = '';
+
+      const filledSeats = new Set(roster.map(r => Number(r.seat)));
+      const pendingSeats = [];
+
+      for (let s = 1; s <= totalStudents; s++) {
+        if (!filledSeats.has(s)) {
+          pendingSeats.push(s);
+        }
+      }
+
+      if (pendingSeats.length === 0) {
+        container.innerHTML = `<span class="text-xs text-emerald-700 font-bold bg-emerald-100 px-3 py-1.5 rounded-lg"><i class="fa-solid fa-check mr-1"></i>太強了！全班 1 ~ 31 號同學已全數完成填寫！</span>`;
+        return;
+      }
+
+      pendingSeats.forEach(seat => {
+        const badge = document.createElement('span');
+        badge.className = 'px-2.5 py-1 bg-white border border-amber-300 text-amber-900 rounded-lg text-xs font-mono font-bold hover:bg-amber-100 transition cursor-pointer shadow-2xs';
+        badge.title = `點擊快速幫 ${seat} 號登記`;
+        badge.innerText = `${seat}號`;
+        badge.onclick = () => {
+          document.getElementById('inputSeat').value = seat;
+          window.location.hash = '#register-form';
+          document.getElementById('inputName').focus();
+        };
+        container.appendChild(badge);
+      });
+    }
+
+    // 渲染名冊表格
+    function renderRoster() {
+      const roster = getRoster();
+      roster.sort((a, b) => Number(a.seat) - Number(b.seat));
+
+      let filtered = roster;
+
+      // 依分類篩選
+      if (currentFilter === 'JOIN') {
+        filtered = filtered.filter(r => r.status === '要參加');
+      } else if (currentFilter === 'NOT_JOIN') {
+        filtered = filtered.filter(r => r.status === '不參加');
+      } else if (currentFilter === 'BOOK') {
+        filtered = filtered.filter(r => r.status === '要參加' && r.group === '技能 Book 組');
+      } else if (currentFilter === 'AI') {
+        filtered = filtered.filter(r => r.status === '要參加' && r.group === '行動 Go AI 組');
+      }
+
+      // 搜尋字串過濾
+      if (currentSearchTerm.trim()) {
+        const t = currentSearchTerm.trim().toLowerCase();
+        filtered = filtered.filter(r => 
+          String(r.seat).includes(t) ||
+          r.name.toLowerCase().includes(t) ||
+          (r.topic && r.topic.toLowerCase().includes(t)) ||
+          (r.notJoinReason && r.notJoinReason.toLowerCase().includes(t)) ||
+          (r.teacher && r.teacher.toLowerCase().includes(t))
+        );
+      }
+
+      const tbody = document.getElementById('rosterTableBody');
+      const mobileContainer = document.getElementById('rosterCardContainer');
+      const noDataAlert = document.getElementById('noDataAlert');
+
+      tbody.innerHTML = '';
+      mobileContainer.innerHTML = '';
+
+      if (filtered.length === 0) {
+        noDataAlert.classList.remove('hidden');
+        return;
+      } else {
+        noDataAlert.classList.add('hidden');
+      }
+
+      filtered.forEach(item => {
+        const isJoin = item.status === '要參加';
+        const statusBadge = isJoin
+          ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200"><i class="fa-solid fa-circle-check"></i> 要參加</span>'
+          : '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-700 border border-rose-200"><i class="fa-solid fa-circle-xmark"></i> 不參加</span>';
+
+        let groupDisplay = '-';
+        if (isJoin) {
+          if (item.group === '行動 Go AI 組') {
+            groupDisplay = '<span class="text-purple-700 font-bold"><i class="fa-solid fa-robot mr-1"></i>行動 Go AI 組</span>';
+          } else {
+            groupDisplay = '<span class="text-blue-700 font-bold"><i class="fa-solid fa-book mr-1"></i>技能 Book 組</span>';
+          }
+        }
+
+        const mainContent = isJoin 
+          ? `<div>
+              <span class="font-semibold text-slate-900">${escapeHtml(item.topic)}</span>
+              ${item.aiTools && item.aiTools.length > 0 ? `
+                <div class="flex flex-wrap gap-1 mt-1">
+                  ${item.aiTools.map(t => `<span class="text-[10px] bg-purple-50 text-purple-700 border border-purple-200 px-1.5 py-0.2 rounded font-mono">${escapeHtml(t)}</span>`).join('')}
+                </div>
+              ` : ''}
+             </div>`
+          : `<div class="text-rose-700 italic"><i class="fa-solid fa-circle-info mr-1 text-rose-400"></i>${escapeHtml(item.notJoinReason || '無特別說明')}</div>`;
+
+        // 1. 電腦端 TR
+        const tr = document.createElement('tr');
+        tr.className = isJoin ? 'hover:bg-emerald-50/20 transition' : 'hover:bg-rose-50/20 transition bg-slate-50/50';
+        tr.innerHTML = `
+          <td class="py-3 px-3 text-center font-bold font-mono text-slate-800 text-sm">${item.seat}</td>
+          <td class="py-3 px-4 font-bold text-slate-900">${escapeHtml(item.name)}</td>
+          <td class="py-3 px-4 text-center">${statusBadge}</td>
+          <td class="py-3 px-4">${groupDisplay}</td>
+          <td class="py-3 px-4">${mainContent}</td>
+          <td class="py-3 px-4 text-slate-600">${isJoin ? escapeHtml(item.teacher || '洽談中') : '-'}</td>
+          <td class="py-3 px-4 text-center text-slate-400 font-mono text-[11px]">${item.time ? item.time.split(' ')[0] : '-'}</td>
+          <td class="py-3 px-4 text-center">
+            <button onclick="deleteRosterItem('${item.id}', '${item.name}')" class="text-slate-400 hover:text-rose-600 p-1 transition" title="刪除此筆記錄">
+              <i class="fa-regular fa-trash-can"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+
+        // 2. 手機端 Card
+        const card = document.createElement('div');
+        card.className = `p-4 rounded-xl border ${isJoin ? 'border-emerald-200 bg-white' : 'border-rose-200 bg-rose-50/30'} shadow-xs space-y-2`;
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-800 flex items-center justify-center font-bold text-xs font-mono">
+                ${item.seat}
+              </span>
+              <span class="font-bold text-slate-900 text-sm">${escapeHtml(item.name)}</span>
+            </div>
+            ${statusBadge}
+          </div>
+
+          <div class="text-xs ${isJoin ? 'bg-slate-50' : 'bg-white'} p-2.5 rounded-lg border border-slate-200">
+            ${isJoin ? `
+              <div><strong>組別：</strong>${groupDisplay}</div>
+              <div class="mt-1"><strong>主題：</strong>${escapeHtml(item.topic)}</div>
+              ${item.teacher ? `<div class="mt-0.5 text-slate-500">指導老師：${escapeHtml(item.teacher)}</div>` : ''}
+            ` : `
+              <div class="text-rose-700"><strong>不參加原因：</strong>${escapeHtml(item.notJoinReason || '無特別說明')}</div>
+            `}
+          </div>
+
+          <div class="flex justify-between items-center text-[11px] text-slate-400 pt-1">
+            <span>登記：${item.time || '-'}</span>
+            <button onclick="deleteRosterItem('${item.id}', '${item.name}')" class="text-rose-500 hover:text-rose-700">
+              <i class="fa-regular fa-trash-can mr-1"></i>刪除
+            </button>
+          </div>
+        `;
+        mobileContainer.appendChild(card);
+      });
+    }
+
+    function renderAll() {
+      renderDashboard();
+      renderRoster();
+    }
+
+    // 處理表單提交 (嚴格檢查 1 ~ 31 號)
+    function handleFormSubmit(e) {
+      e.preventDefault();
+
+      const seat = parseInt(document.getElementById('inputSeat').value);
+      if (isNaN(seat) || seat < 1 || seat > 31) {
+        Swal.fire('座號錯誤', '座號請填寫 1 到 31 號！', 'warning');
+        return;
+      }
+
+      const name = document.getElementById('inputName').value.trim();
+      const className = '資處一仁';
+
+      const statusRadio = document.querySelector('input[name="participationStatus"]:checked');
+      if (!statusRadio) {
+        Swal.fire('提醒', '請選擇是否參加本次競賽！', 'warning');
+        return;
+      }
+      const status = statusRadio.value;
+
+      let group = '-';
+      let topic = '-';
+      let aiTools = [];
+      let teacher = '-';
+      let contact = '-';
+      let notJoinReason = '';
+
+      if (status === '要參加') {
+        const groupRadio = document.querySelector('input[name="competitionGroup"]:checked');
+        if (!groupRadio) {
+          Swal.fire('提醒', '要參加的同學請選擇欲報名的競賽組別！', 'warning');
+          return;
+        }
+        group = groupRadio.value;
+        topic = document.getElementById('inputTopic').value.trim();
+        teacher = document.getElementById('inputTeacher').value.trim();
+        contact = document.getElementById('inputContact').value.trim();
+
+        if (group === '行動 Go AI 組') {
+          const cbs = document.querySelectorAll('input[name="aiTool"]:checked');
+          cbs.forEach(cb => aiTools.push(cb.value));
+        }
+      } else {
+        notJoinReason = document.getElementById('selectNotJoinReason').value;
+        const notes = document.getElementById('inputNotJoinNotes').value.trim();
+        if (notes) {
+          notJoinReason += ` (${notes})`;
+        }
+      }
+
+      const roster = getRoster();
+      const existing = roster.find(r => r.seat === seat);
+
+      const doSave = () => {
+        const record = {
+          id: existing ? existing.id : Date.now().toString(),
+          seat: seat,
+          name: name,
+          class: className,
+          status: status,
+          group: group,
+          topic: topic,
+          aiTools: aiTools,
+          teacher: teacher,
+          contact: contact,
+          notJoinReason: notJoinReason,
+          time: getFormattedCurrentTime()
+        };
+
+        if (existing) {
+          const idx = roster.findIndex(r => r.seat === seat);
+          roster[idx] = record;
+        } else {
+          roster.push(record);
+        }
+
+        saveRoster(roster);
+
+        if (status === '要參加') {
+          confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+          Swal.fire('🎉 報名成功！', `已記錄座號 ${seat} 號 ${name} 同學要參加【${group}】！`, 'success');
+        } else {
+          Swal.fire('已記錄', `已記錄座號 ${seat} 號 ${name} 同學【暫不參加】。`, 'info');
+        }
+
+        document.getElementById('intentForm').reset();
+        document.getElementById('sectionJoin').classList.add('hidden');
+        document.getElementById('sectionNotJoin').classList.add('hidden');
+        window.location.hash = '#roster';
+      };
+
+      if (existing) {
+        Swal.fire({
+          title: '座號已被登記',
+          text: `座號 ${seat} 號原登記為「${existing.name} (${existing.status})」，是否覆蓋更新？`,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonColor: '#3b82f6',
+          cancelButtonColor: '#64748b',
+          confirmButtonText: '是的，覆蓋更新',
+          cancelButtonText: '取消'
+        }).then(res => {
+          if (res.isConfirmed) doSave();
+        });
+      } else {
+        doSave();
+      }
+    }
+
+    // 刪除項目
+    function deleteRosterItem(id, name) {
+      Swal.fire({
+        title: '確認刪除記錄？',
+        text: `確定要刪除「${name}」的登記資料嗎？`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e11d48',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: '刪除',
+        cancelButtonText: '保留'
+      }).then(res => {
+        if (res.isConfirmed) {
+          let roster = getRoster();
+          roster = roster.filter(r => r.id !== id);
+          saveRoster(roster);
+          Swal.fire('已刪除', '已清除該筆資料。', 'success');
+        }
+      });
+    }
+
+    // 切換篩選
+    function setFilter(type) {
+      currentFilter = type;
+
+      const tabs = ['ALL', 'JOIN', 'NOT_JOIN', 'BOOK', 'AI'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`tab${t}`);
+        if (!btn) return;
+        if (t === type) {
+          btn.className = 'px-4 py-2 rounded-xl bg-white text-slate-900 shadow-sm transition';
+        } else {
+          btn.className = 'px-3 py-2 rounded-xl text-slate-600 hover:bg-white/60 transition';
+        }
+      });
+
+      renderRoster();
+    }
+
+    function handleSearch(val) {
+      currentSearchTerm = val;
+      renderRoster();
+    }
+
+    // 帶入組別快捷
+    function applyGroupToForm(groupName) {
+      window.location.hash = '#register-form';
+      
+      const joinRadio = document.querySelector('input[name="participationStatus"][value="要參加"]');
+      if (joinRadio) {
+        joinRadio.checked = true;
+        toggleParticipationFields(true);
+      }
+
+      const groupRadios = document.getElementsByName('competitionGroup');
+      for (const r of groupRadios) {
+        if (r.value === groupName) {
+          r.checked = true;
+          toggleAiToolsSub(groupName === '行動 Go AI 組');
+          break;
+        }
+      }
+    }
+
+    // 匯出 CSV (Excel 繁體中文無亂碼)
+    function exportToCSV() {
+      const roster = getRoster();
+      if (roster.length === 0) {
+        Swal.fire('提示', '目前尚無任何同學填寫資料！', 'info');
+        return;
+      }
+
+      roster.sort((a, b) => Number(a.seat) - Number(b.seat));
+
+      let csv = '\uFEFF'; // UTF-8 BOM
+      csv += '座號,姓名,班級,意願狀態,參賽組別,研究主題/書名/不參加原因,使用AI工具,指導老師,聯絡資訊,登記時間\n';
+
+      roster.forEach(r => {
+        const tools = (r.aiTools || []).join(';');
+        const content = r.status === '要參加' ? (r.topic || '') : (r.notJoinReason || '');
+        const row = [
+          r.seat,
+          `"${(r.name || '').replace(/"/g, '""')}"`,
+          `"資處一仁"`,
+          `"${r.status}"`,
+          `"${r.group}"`,
+          `"${content.replace(/"/g, '""')}"`,
+          `"${tools.replace(/"/g, '""')}"`,
+          `"${(r.teacher || '').replace(/"/g, '""')}"`,
+          `"${(r.contact || '').replace(/"/g, '""')}"`,
+          `"${(r.time || '').replace(/"/g, '""')}"`
+        ];
+        csv += row.join(',') + '\n';
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `智光商工_資處一仁_GoAI競賽意願調查表_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      Swal.fire('匯出成功', '已下載包含「要參加」與「不參加」分類的 Excel 清冊！', 'success');
+    }
+
+    // 複製 LINE 名冊分類文字
+    function copyRosterSummary() {
+      const roster = getRoster();
+      const joinList = roster.filter(r => r.status === '要參加').sort((a, b) => a.seat - b.seat);
+      const notJoinList = roster.filter(r => r.status === '不參加').sort((a, b) => a.seat - b.seat);
+
+      const filledSeats = new Set(roster.map(r => Number(r.seat)));
+      const pendingSeats = [];
+      for (let s = 1; s <= TOTAL_CLASS_SIZE; s++) {
+        if (!filledSeats.has(s)) pendingSeats.push(s);
+      }
+
+      let text = `📢 【資處一仁 新北Go AI自主學習成果競賽 意願調查名冊】\n`;
+      text += `全班人數：31 人 (1~31號) | 已登記：${roster.length} 人\n`;
+      text += `====================================\n`;
+
+      text += `🟢【確認要參加同學】(${joinList.length} 人)\n`;
+      if (joinList.length === 0) {
+        text += `   (目前暫無)\n`;
+      } else {
+        joinList.forEach(r => {
+          text += `• [${String(r.seat).padStart(2, '0')}] ${r.name} - ${r.group}\n   主題：${r.topic}\n`;
+        });
+      }
+
+      text += `\n🔴【不參加同學】(${notJoinList.length} 人)\n`;
+      if (notJoinList.length === 0) {
+        text += `   (目前暫無)\n`;
+      } else {
+        notJoinList.forEach(r => {
+          text += `• [${String(r.seat).padStart(2, '0')}] ${r.name} (${r.notJoinReason || '專注其他規劃'})\n`;
+        });
+      }
+
+      if (pendingSeats.length > 0) {
+        text += `\n⏳【尚未填寫座號】(${pendingSeats.length} 人)\n`;
+        text += `   座號：${pendingSeats.join(', ')} 號\n`;
+        text += `   ※ 請以上座號同學儘速完成線上登記！\n`;
+      }
+
+      text += `====================================\n`;
+      text += `截止日期：116年1月12日`;
+
+      navigator.clipboard.writeText(text).then(() => {
+        Swal.fire('已複製', '分類名單已複製！可直接貼在 LINE 班群回報老師與同學。', 'success');
+      });
+    }
+
+    // 複製催填座號
+    function copyPendingSeats() {
+      const roster = getRoster();
+      const filledSeats = new Set(roster.map(r => Number(r.seat)));
+      const pendingSeats = [];
+      for (let s = 1; s <= TOTAL_CLASS_SIZE; s++) {
+        if (!filledSeats.has(s)) pendingSeats.push(s);
+      }
+
+      if (pendingSeats.length === 0) {
+        Swal.fire('太棒了', '全班 1 ~ 31 號同學皆已完成登記！', 'success');
+        return;
+      }
+
+      const text = `📢 【資處一仁 自主學習競賽登記催繳】\n目前 1 ~ 31 號中，以下座號尚未完成登記：\n👉 ${pendingSeats.join('、')} 號\n請大家無論要不要參加，都點進網站選一下，謝謝配合！`;
+
+      navigator.clipboard.writeText(text).then(() => {
+        Swal.fire('已複製提醒文字', '已複製催繳文字，可直接貼到 LINE 班群提醒未填同學！', 'success');
+      });
+    }
+
+    // 清空重置
+    function clearAllDataPrompt() {
+      Swal.fire({
+        title: '確定清空重置？',
+        text: '這將會清空目前所有填寫的資料，重新開始統計 1 ~ 31 號。',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e11d48',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: '確定清空',
+        cancelButtonText: '取消'
+      }).then(res => {
+        if (res.isConfirmed) {
+          saveRoster([]);
+          Swal.fire('已清空', '目前已重設為全班 31 人未登記狀態！', 'success');
+        }
+      });
+    }
+
+    function getFormattedCurrentTime() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      const h = String(now.getHours()).padStart(2, '0');
+      const min = String(now.getMinutes()).padStart(2, '0');
+      return `${y}-${m}-${d} ${h}:${min}`;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function toggleMobileMenu() {
+      document.getElementById('mobileMenu').classList.toggle('hidden');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderAll();
+    });
+  </script>
+</body>
+</html>
